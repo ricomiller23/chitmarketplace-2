@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { MapPin, Menu, Terminal, Zap, ArrowDownLeft, ArrowUpRight, DollarSign, Loader2 } from "lucide-react";
+import { MapPin, Menu, Terminal, Zap, ArrowDownLeft, ArrowUpRight, DollarSign, Loader2, Monitor } from "lucide-react";
 
 import { INITIAL_DATA, FACILITIES, BANK_ACCOUNTS } from "./constants.js";
 import { fmtUSD, fmtCHIT, fmtReceiptId, fmtDate, fmtTime, genChartData, randId } from "./helpers.js";
@@ -11,7 +11,49 @@ import Dashboard from "./components/Dashboard.jsx";
 import Members from "./components/Members.jsx";
 import Treasury from "./components/Treasury.jsx";
 
+// ── Mobile Blocker ────────────────────────────────────────────
+function MobileBlocker() {
+    return (
+        <div style={{
+            height: "100vh", width: "100vw", background: "#161616",
+            display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "center", padding: 32, textAlign: "center",
+            fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+        }}>
+            <div style={{
+                background: "#1c1c1c", border: "1px solid #2a2a2a",
+                borderRadius: 20, padding: "40px 32px", maxWidth: 340,
+            }}>
+                <Monitor size={48} style={{ color: "#4ade80", margin: "0 auto 20px", display: "block" }} />
+                <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 700, letterSpacing: "0.15em", marginBottom: 12 }}>
+                    UTRADE
+                </h1>
+                <p style={{ color: "#9ca3af", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>
+                    Sorry — you need a desktop to run this platform.
+                </p>
+                <div style={{
+                    background: "#161616", border: "1px solid #2a2a2a",
+                    borderRadius: 10, padding: "12px 16px",
+                }}>
+                    <p style={{ color: "#9ca3af", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.05em" }}>
+                        UTRADE is a desktop-only institutional trading platform. Please open this URL on a laptop or desktop computer.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function App() {
+    // ── Mobile Detection ─────────────────────────────────────
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener("resize", check);
+        return () => window.removeEventListener("resize", check);
+    }, []);
+
     // ── Core State ──────────────────────────────────────────
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -197,7 +239,9 @@ export default function App() {
         console.log(`[SIMULATE] Incoming: ${fmtCHIT(amount)} from ${sender}`);
     };
 
-    // ── Loading ───────────────────────────────────────────────
+    // ── Loading / Mobile Guard ────────────────────────────────
+    if (isMobile) return <MobileBlocker />;
+
     if (loading || !data) {
         return (
             <div style={{ height: "100vh", background: "#161616", display: "flex", alignItems: "center", justifyContent: "center" }}>
